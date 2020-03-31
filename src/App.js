@@ -1,25 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import { FaSync, FaTwitter } from 'react-icons/fa';
 import './App.css';
 
+import QuotesService from './services/quotes.service';
+
 function App() {
+
+  const [quote, setQuote] = useState(null);
+
+  useEffect(() => {
+    loadQuote();
+  }, []);
+
+  async function loadQuote() {
+    setQuote(null);
+    const response = await QuotesService.get('/quotes/random');
+    setQuote(response.data);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    quote ?
+      <div 
+        id="quote-box" 
+        className='box text-center'
+      >
+        <blockquote className={'blockquote text-center'}>
+          <p 
+            id="text" 
+            className={'mb-0'}
+          >{quote.quote}</p>
+          <footer 
+            id="author" 
+            className={'blockquote-footer'}
+          >{quote.author}</footer>
+        </blockquote>
+
+        <button 
+          id="new-quote" 
+          onClick={loadQuote} 
+          className={'btn btn-sm btn-primary mr-1'}
         >
-          Learn React
+          <FaSync/> New Quote
+        </button>
+        <a 
+          href={`https://twitter.com/intent/tweet?text="${encodeURIComponent(quote.quote)}" ${encodeURIComponent(quote.author)}`}
+          target="_blank"
+          id="tweet-quote" 
+          className={'btn btn-sm btn-secondary'}
+        >
+          <FaTwitter /> Tweet Quote
         </a>
-      </header>
-    </div>
+      </div>
+      :
+      <div className="box loading text-center">
+        <FaSync size={60} className='fa-spin' />
+        <p className='text-muted'>Loading...</p>
+      </div>
   );
 }
 
